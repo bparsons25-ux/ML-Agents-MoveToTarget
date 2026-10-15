@@ -12,12 +12,19 @@ public class MoveToTargetAgent : Agent
     [SerializeField] private Color loseColour = Color.red;
     [SerializeField] private Color idleColour = Color.grey;
     [SerializeField] private Color closeColour = Color.yellow;
+    [SerializeField] private Transform spawn;
     public Renderer[] floors;
+    public TMPro.TextMeshPro winCounter;
+    public TMPro.TextMeshPro loseCounter;
+    private int wincount;
+    private int losecount;
+
 
 
     public override void OnEpisodeBegin() //Resets the Enviroment
     {
-        transform.localPosition = new Vector3(Random.Range(-1, 1f), 0.5f, Random.Range(-1f, 0f)); // picks a random x position between -4 and 4, while also picking a random z position between -4 and 0 
+        transform.localPosition = spawn.transform.localPosition;
+        //transform.localPosition = new Vector3(Random.Range(-1, 1f), 0.5f, Random.Range(-1f, 0f)); // picks a random x position between -4 and 4, while also picking a random z position between -4 and 0 
         //target.localPosition = new Vector3(Random.Range(-4f, 4f), 0.5f, Random.Range(1f, 4f)); // picks a random x position between -4 and 4, while also picking a random z position between 1 and 4 
     }
 
@@ -25,6 +32,12 @@ public class MoveToTargetAgent : Agent
     {
         sensor.AddObservation(transform.localPosition); // 3
         sensor.AddObservation(target.localPosition);    // 3
+    }
+
+    public void Update()
+    {
+        loseCounter.text = "losses:" + losecount.ToString();
+        winCounter.text = "Wins:" + wincount.ToString();
     }
 
     public override void OnActionReceived(ActionBuffers actions) // Acts on what the agent does
@@ -58,6 +71,10 @@ public class MoveToTargetAgent : Agent
         foreach (Renderer floorRenderer in floors)
         {
             floorRenderer.material.color = idleColour;
+            wincount = 0;
+            losecount = 0;
+            loseCounter.text = "losses:" + losecount.ToString();
+            winCounter.text = "Wins:" + wincount.ToString(); 
         }
     }
 
@@ -65,11 +82,12 @@ public class MoveToTargetAgent : Agent
     {
         if (other.CompareTag("Target"))
         {
-            SetReward(5f);
+            SetReward(10f);
             foreach (Renderer floorRenderer in floors)
             {
                 floorRenderer.material.color = winColour;
             }
+            wincount += 10;
             EndEpisode();
         }
         else if (other.CompareTag("Wall"))
@@ -79,6 +97,7 @@ public class MoveToTargetAgent : Agent
             {
                 floorRenderer.material.color = loseColour;
             }
+            losecount++;
             EndEpisode();
         }
 
@@ -89,6 +108,7 @@ public class MoveToTargetAgent : Agent
             {
                 floorRenderer.material.color = closeColour;
             }
+            wincount++;
             other.gameObject.SetActive(false);
            
         }
