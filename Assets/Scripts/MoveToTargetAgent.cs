@@ -14,8 +14,8 @@ public class MoveToTargetAgent : Agent
     [SerializeField] private Color closeColour = Color.yellow;
     [SerializeField] private Transform spawn;
     public Renderer[] floors;
-    public TMPro.TextMeshPro winCounter;
-    public TMPro.TextMeshPro loseCounter;
+    public TMPro.TextMeshProUGUI winCounter;
+    public TMPro.TextMeshProUGUI loseCounter;
     private int wincount;
     private int losecount;
 
@@ -49,7 +49,7 @@ public class MoveToTargetAgent : Agent
         transform.localPosition += move * moveSpeed * Time.deltaTime;
 
         // Small penalty every step so it learns to hurry
-        if (MaxStep > 0) AddReward(-1f / MaxStep);
+        //if (MaxStep > 0) AddReward(-1f / MaxStep);
     }
 
     public override void Heuristic(in ActionBuffers actionsOut) // human test drives this
@@ -92,18 +92,18 @@ public class MoveToTargetAgent : Agent
         }
         else if (other.CompareTag("Wall"))
         {
-            SetReward(-1f);
+            SetReward(-2f);
             foreach (Renderer floorRenderer in floors)
             {
                 floorRenderer.material.color = loseColour;
             }
             losecount++;
-            EndEpisode();
+            //EndEpisode();
         }
 
         if (other.CompareTag("RewardBarrier"))
         {
-            SetReward(1f);
+            SetReward(2f);
             foreach (Renderer floorRenderer in floors)
             {
                 floorRenderer.material.color = closeColour;
@@ -111,6 +111,17 @@ public class MoveToTargetAgent : Agent
             wincount++;
             other.gameObject.SetActive(false);
            
+        }
+
+        if (other.CompareTag("StartBarrier"))
+        {
+            SetReward(-15f);
+            foreach (Renderer floorRenderer in floors)
+            {
+                floorRenderer.material.color = loseColour;
+            }
+            losecount++;
+            EndEpisode();
         }
 
     }
