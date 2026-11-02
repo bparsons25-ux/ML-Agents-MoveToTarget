@@ -82,7 +82,7 @@ public class MoveToTargetAgent : Agent
     {
         if (other.CompareTag("Target"))
         {
-            SetReward(10f);
+            SetReward(5f);
             foreach (Renderer floorRenderer in floors)
             {
                 floorRenderer.material.color = winColour;
@@ -92,30 +92,29 @@ public class MoveToTargetAgent : Agent
         }
         else if (other.CompareTag("Wall"))
         {
-            SetReward(-2f);
+            SetReward(-1f);
             foreach (Renderer floorRenderer in floors)
             {
                 floorRenderer.material.color = loseColour;
             }
             losecount++;
-            //EndEpisode();
+            EndEpisode();
         }
 
         if (other.CompareTag("RewardBarrier"))
         {
-            SetReward(2f);
+            SetReward(0.1f);
             foreach (Renderer floorRenderer in floors)
             {
                 floorRenderer.material.color = closeColour;
             }
-            wincount++;
-            other.gameObject.SetActive(false);
+            Destroy(other.gameObject);
            
         }
 
         if (other.CompareTag("StartBarrier"))
         {
-            SetReward(-15f);
+            SetReward(-10f);
             foreach (Renderer floorRenderer in floors)
             {
                 floorRenderer.material.color = loseColour;
