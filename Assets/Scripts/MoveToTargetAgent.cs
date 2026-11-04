@@ -13,6 +13,11 @@ public class MoveToTargetAgent : Agent
     [SerializeField] private Color idleColour = Color.grey;
     [SerializeField] private Color closeColour = Color.yellow;
     [SerializeField] private Transform spawn;
+
+    private int nextCheckpoint;
+    [SerializeField] private GameObject[] checkPoints;
+
+
     public Renderer[] floors;
     public TMPro.TextMeshProUGUI winCounter;
     public TMPro.TextMeshProUGUI loseCounter;
@@ -24,6 +29,7 @@ public class MoveToTargetAgent : Agent
     public override void OnEpisodeBegin() //Resets the Enviroment
     {
         transform.localPosition = spawn.transform.localPosition;
+        nextCheckpoint = 0;
         //transform.localPosition = new Vector3(Random.Range(-1, 1f), 0.5f, Random.Range(-1f, 0f)); // picks a random x position between -4 and 4, while also picking a random z position between -4 and 0 
         //target.localPosition = new Vector3(Random.Range(-4f, 4f), 0.5f, Random.Range(1f, 4f)); // picks a random x position between -4 and 4, while also picking a random z position between 1 and 4 
     }
@@ -103,13 +109,21 @@ public class MoveToTargetAgent : Agent
 
         if (other.CompareTag("RewardBarrier"))
         {
-            SetReward(0.1f);
-            foreach (Renderer floorRenderer in floors)
+            //SetReward(0.1f);
+            //foreach (Renderer floorRenderer in floors)
+            //{
+            //    floorRenderer.material.color = closeColour;
+            //}
+            ////Destroy(other.gameObject);
+
+            if (nextCheckpoint < checkPoints.Length && other.gameObject == checkPoints[nextCheckpoint])
             {
-                floorRenderer.material.color = closeColour;
+                AddReward(0.1f * (nextCheckpoint + 1));
+                nextCheckpoint++;
+                Debug.Log("Checkpoint Touched");
             }
-            Destroy(other.gameObject);
-           
+
+
         }
 
         if (other.CompareTag("StartBarrier"))
@@ -122,7 +136,6 @@ public class MoveToTargetAgent : Agent
             losecount++;
             EndEpisode();
         }
-
     }
 
 }
