@@ -1,0 +1,6 @@
+mlagents-learn config/MoveToTarget.yaml --run-id=RaceAroundTrack_01 
+
+mlagents-learn config/MoveToTarget.yaml --run-id=RaceAroundTrack_01 --force
+
+mlagents-learn config/MoveToTarget.yaml --run-id=RaceAroundTrack_01 --resume
+
