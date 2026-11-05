@@ -36,8 +36,22 @@ public class MoveToTargetAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor) // Obsreves what it knows
     {
-        sensor.AddObservation(transform.localPosition); // 3
-        sensor.AddObservation(target.localPosition);    // 3
+        Vector3 toNext = PointAt(nextCheckpoint) - transform.position;
+        toNext.y = 0f;
+        Vector3 toAhead = PointAt(nextCheckpoint + 4) - transform.position;
+        toAhead.y = 0f;
+
+        sensor.AddObservation(toNext.normalized.x);
+        sensor.AddObservation(toNext.normalized.z);
+        sensor.AddObservation(Mathf.Clamp01(toNext.magnitude / 5f));
+        sensor.AddObservation(toAhead.normalized.x);
+        sensor.AddObservation(toAhead.normalized.z);
+    }
+
+    private Vector3 PointAt(int index)
+    {
+        if (index < checkPoints.Length) return checkPoints[index].transform.position;
+        return target.position;
     }
 
     public void Update()
@@ -55,7 +69,7 @@ public class MoveToTargetAgent : Agent
         transform.localPosition += move * moveSpeed * Time.deltaTime;
 
         // Small penalty every step so it learns to hurry
-        //if (MaxStep > 0) AddReward(-1f / MaxStep);
+        if (MaxStep > 0) AddReward(-1f / MaxStep);
     }
 
     public override void Heuristic(in ActionBuffers actionsOut) // human test drives this
@@ -88,7 +102,7 @@ public class MoveToTargetAgent : Agent
     {
         if (other.CompareTag("Target"))
         {
-            SetReward(5f);
+            AddReward(5f);
             foreach (Renderer floorRenderer in floors)
             {
                 floorRenderer.material.color = winColour;
@@ -98,7 +112,7 @@ public class MoveToTargetAgent : Agent
         }
         else if (other.CompareTag("Wall"))
         {
-            SetReward(-1f);
+            AddReward(-2f);
             foreach (Renderer floorRenderer in floors)
             {
                 floorRenderer.material.color = loseColour;
